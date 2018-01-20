@@ -1,8 +1,8 @@
-CCII is serializer/deserialzier
+# CCII is serializer/deserialzier
 
 [![Build Status](https://travis-ci.org/sirkon/ccii.svg?branch=master)](https://travis-ci.org/sirkon/ccii)
 
-I don't know exactly why should I decided to give such a weird name. So, let's ccii is a `ccii`.
+I don't know exactly why did I decide to give such a weird name. Just let it go.
 
 ##### Purpose
 
