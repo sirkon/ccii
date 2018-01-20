@@ -7,7 +7,7 @@ import (
 	"strings"
 )
 
-const serviceChars = " ={}[]\\,:$"
+const serviceChars = " ={}[]\\,:$\"'`&<>"
 
 // Encode экранирует запрещённые символы в файле
 func Encode(input string) string {
