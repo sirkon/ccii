@@ -15,6 +15,7 @@ func TestVisitor_feedScalar(t *testing.T) {
 	var fdest float64
 	var sdest string
 	var invalidTarget struct{}
+	var boolean bool
 	psdest := &sdest
 	tests := []struct {
 		name    string
@@ -70,6 +71,27 @@ func TestVisitor_feedScalar(t *testing.T) {
 			input:   "4",
 			obj:     &invalidTarget,
 			want:    nil,
+			wantErr: true,
+		},
+		{
+			name:    "boolean true",
+			input:   "t",
+			obj:     &boolean,
+			want:    true,
+			wantErr: false,
+		},
+		{
+			name:    "boolean false",
+			input:   "f",
+			obj:     &boolean,
+			want:    false,
+			wantErr: false,
+		},
+		{
+			name:    "boolean error",
+			input:   "f..k",
+			obj:     &boolean,
+			want:    false,
 			wantErr: true,
 		},
 	}

@@ -66,6 +66,13 @@ func (m *marshaler) marshal(obj interface{}, scalarPrefix string) error {
 	case reflect.String:
 		m.WriteString(scalarPrefix)
 		m.WriteString(Encode(obj.(string)))
+	case reflect.Bool:
+		m.WriteString(scalarPrefix)
+		if obj.(bool) {
+			m.WriteByte('t')
+		} else {
+			m.WriteByte('f')
+		}
 	default:
 		return fmt.Errorf("type %T is not supported for marshalling", obj)
 	}

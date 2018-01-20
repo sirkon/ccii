@@ -141,6 +141,15 @@ func (v *Visitor) feedScalar(value string) (err error) {
 		*val = float64(float64val)
 	case *string:
 		*val = value
+	case *bool:
+		switch value {
+		case "t":
+			*val = true
+		case "f":
+			*val = false
+		default:
+			return fmt.Errorf("cannot unmarshal boolean value from `%s`", val)
+		}
 
 	case **int:
 		intval, err := strconv.ParseInt(value, 10, 64)
@@ -228,6 +237,18 @@ func (v *Visitor) feedScalar(value string) (err error) {
 		*val = &k
 	case **string:
 		*val = &value
+	case **bool:
+		var r bool
+		switch value {
+		case "t":
+			r = true
+		case "f":
+			r = false
+		default:
+			return fmt.Errorf("cannot unmarshal boolean value from `%s`", val)
+		}
+		*val = &r
+
 	default:
 		return fmt.Errorf("cannot put a scalar into %T", v.obj)
 	}
