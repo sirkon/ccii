@@ -66,6 +66,22 @@ func TestMarshal(t *testing.T) {
 			want:    "{True=t}",
 			wantErr: false,
 		},
+		{
+			name: "struct with zero field",
+			obj: struct {
+				A string
+				B int
+				C string
+				D int
+			}{
+				A: "1",
+				B: 1,
+				C: "",
+				D: 0,
+			},
+			want:    `{A=1,B=1}`,
+			wantErr: false,
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -138,4 +154,25 @@ func TestMarshalEmbeddedStruct(t *testing.T) {
 		t.Fatal(err)
 	}
 	require.Equal(t, source, dest)
+}
+
+func TestZeroKeyMap(t *testing.T) {
+	source := map[string]int{
+		"A": 667,
+		"B": 0,
+	}
+	var dest map[string]int
+
+	out, err := Marshal(source)
+	if err != nil {
+		t.Fatal(err)
+	}
+	require.Equal(t, "{A=667}", out)
+	if err := Unmarshal(out, &dest); err != nil {
+		t.Fatal(err)
+	}
+
+	require.Equal(t, map[string]int{
+		"A": 667,
+	}, dest)
 }

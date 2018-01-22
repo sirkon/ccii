@@ -6,6 +6,24 @@ import (
 	"reflect"
 )
 
+func isZero(v reflect.Value) bool {
+	switch v.Kind() {
+	case reflect.Array, reflect.String:
+		return v.Len() == 0
+	case reflect.Bool:
+		return !v.Bool()
+	case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
+		return v.Int() == 0
+	case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64, reflect.Uintptr:
+		return v.Uint() == 0
+	case reflect.Float32, reflect.Float64:
+		return v.Float() == 0
+	case reflect.Interface, reflect.Map, reflect.Ptr, reflect.Slice:
+		return v.IsNil()
+	}
+	return false
+}
+
 // Marshal обратное преобразование
 func Marshal(obj interface{}) (string, error) {
 	m := &marshaler{}
@@ -33,16 +51,22 @@ func (m *marshaler) marshal(obj interface{}, scalarPrefix string) error {
 		}
 		m.WriteByte('}')
 	case reflect.Map:
+
 		m.WriteByte('{')
-		for i, key := range v.MapKeys() {
+		notFirst := false
+		for _, key := range v.MapKeys() {
+			if isZero(v.MapIndex(key)) {
+				continue
+			}
+			if notFirst {
+				m.WriteByte(',')
+			}
+			notFirst = true
 			if err := m.marshal(key.Interface(), ""); err != nil {
 				return err
 			}
 			if err := m.marshal(v.MapIndex(key).Interface(), "="); err != nil {
 				return err
-			}
-			if i < len(v.MapKeys())-1 {
-				m.WriteByte(',')
 			}
 		}
 		m.WriteByte('}')
@@ -80,9 +104,17 @@ func (m *marshaler) marshal(obj interface{}, scalarPrefix string) error {
 }
 
 func (m *marshaler) writeStruct(v reflect.Value) error {
+	notFirst := false
 	for i := 0; i < v.NumField(); i++ {
 		ftype := v.Type().Field(i)
 		fval := v.Field(i)
+		if isZero(fval) {
+			continue
+		}
+		if notFirst {
+			m.WriteByte(',')
+		}
+		notFirst = true
 		if ftype.Anonymous {
 			if err := m.writeStruct(fval); err != nil {
 				return err
@@ -95,9 +127,6 @@ func (m *marshaler) writeStruct(v reflect.Value) error {
 				return err
 			}
 
-		}
-		if i < v.NumField()-1 {
-			m.WriteByte(',')
 		}
 	}
 	return nil
